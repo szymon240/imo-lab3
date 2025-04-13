@@ -107,7 +107,7 @@ def cycle_length(cycle, matrix):
 def target_function(cycle1: list[int], cycle2: list[int], matrix: np.ndarray) -> int:
     return cycle_length(cycle1, matrix) + cycle_length(cycle2, matrix)
 
-def experiment_lab1(matrix: np.ndarray, algorithm: Callable[[np.ndarray], tuple[list[int], list[int]]], runs=1):
+def experiment_lab1(matrix: np.ndarray, algorithm: Callable[[np.ndarray], tuple[list[int], list[int]]], runs=10):
     total_costs = []
     min_cost = float('inf')
     max_cost = float('-inf')
@@ -149,7 +149,7 @@ def experiment_lab2(
             cycle2: list[int],
             alg: Callable[[np.ndarray, list[int], list[int], float], tuple[tuple[list[int], list[int]], int, float]],
             min_time: float | None = None,
-            runs = 1
+            runs = 10
             ):
     lengths = []
     times = []
