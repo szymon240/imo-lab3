@@ -150,3 +150,63 @@ def steepest_original(distance_matrix, first_cycle, second_cycle):
 
     execution_time = time.time() - start_time
     return (first_cycle, second_cycle), best_length, execution_time
+
+def get_candidate_edges(distance_matrix, k=10):
+    """
+    Wyznacza krawędzie kandydackie dla każdego wierzchołka.
+    """
+    candidate_edges = {}
+    num_nodes = distance_matrix.shape[0]
+    for i in range(num_nodes):
+        nearest_neighbors = np.argsort(distance_matrix[i])[:k + 1]  # +1, aby uwzględnić wierzchołek i
+        candidate_edges[i] = [j for j in nearest_neighbors if j != i]
+    return candidate_edges
+
+def steepest_original_with_candidates(distance_matrix, first_cycle, second_cycle, k=10):
+    """
+    Wersja lokalnego przeszukiwania z mechanizmem kandydackim, wykorzystująca funkcje z swaps.py.
+    """
+    start_time = time.time()
+    best_length = cycle_length(first_cycle, distance_matrix) + cycle_length(second_cycle, distance_matrix)
+
+    # Wyznacz krawędzie kandydackie
+    candidate_edges = get_candidate_edges(distance_matrix, k)
+
+    improved = True
+    while improved:
+        improved = False
+        best_delta = 0
+        best_move = None
+
+        # Sprawdzanie zamian między cyklami
+        for new_first, new_second, delta in og_swaps.swap_nodes_between_cycles_with_candidates(first_cycle, second_cycle, distance_matrix, candidate_edges):
+            if delta < best_delta:
+                best_delta = delta
+                best_move = ('both', new_first, new_second)
+
+        # Sprawdzanie zamian krawędzi w obrębie pierwszego cyklu (2-opt move)
+        for new_cycle, delta in og_swaps.swap_edges_within_cycle_with_candidates(first_cycle, distance_matrix, candidate_edges):
+            if delta < best_delta:
+                best_delta = delta
+                best_move = ('first', new_cycle)
+
+        # Sprawdzanie zamian krawędzi w obrębie drugiego cyklu (2-opt move)
+        for new_cycle, delta in og_swaps.swap_edges_within_cycle_with_candidates(second_cycle, distance_matrix, candidate_edges):
+            if delta < best_delta:
+                best_delta = delta
+                best_move = ('second', new_cycle)
+
+        # Wykonanie najlepszego ruchu
+        if best_move is not None:
+            if best_move[0] == 'both':
+                first_cycle, second_cycle = best_move[1], best_move[2]
+            elif best_move[0] == 'first':
+                first_cycle = best_move[1]
+            elif best_move[0] == 'second':
+                second_cycle = best_move[1]
+
+            best_length += best_delta
+            improved = True
+
+    execution_time = time.time() - start_time
+    return (first_cycle, second_cycle), best_length, execution_time
