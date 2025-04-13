@@ -82,7 +82,6 @@ def generate_all_moves(cycles, distance_matrix):
     moves = []
 
     for cycle_index in [0, 1]:
-        moves.extend(swap_nodes_within_cycle(cycle_index, cycles, distance_matrix))
         moves.extend(swap_edges_within_cycle(cycle_index, cycles, distance_matrix))
 
     moves.extend(swap_nodes_between_cycles(cycles, distance_matrix))
