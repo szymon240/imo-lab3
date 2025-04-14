@@ -149,13 +149,17 @@ def experiment_lab2(
             cycle2: list[int],
             alg: Callable[[np.ndarray, list[int], list[int], float], tuple[tuple[list[int], list[int]], int, float]],
             min_time: float | None = None,
-            runs = 10
+            runs = 10,
+            random = True
             ):
     lengths = []
     times = []
     solutions = []
 
     for _ in range(runs):
+        if random:
+            cycle1, cycle2, _ = initialize_random_cycles(matrix)
+
         if min_time is None:
             solution, length, time = alg(matrix, cycle1, cycle2)
         else:
